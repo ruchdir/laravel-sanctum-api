@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Models\Product;
 use GuzzleHttp\Handler\Proxy;
@@ -17,16 +18,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 //? Check your routes : php artisan route:list
-Route::resource('products', ProductController::class);
+//Route::resource('products', ProductController::class);
 
+//Test token
+//1|XzrDmwfnLHLz6PRfaJKSis5RgdWeOzWn36a0aWX2
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+
+
+Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/search/{name}', [ProductController::class, 'search']);
+Route::get('/products/:id', [ProductController::class, 'show']);
 
-// Route::get('/products', [ProductController::class, 'index']);
+Route::group(['middleware' => ['auth:sanctum']], function(){
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::put('/products/:id', [ProductController::class, 'update']);
+    Route::delete('/products/:id', [ProductController::class,'destroy']);
 
-// Route::post('/products', [ProductController::class, 'store']);
-
-// Route::get('/products/:id', [ProductController::class, 'show']);
-
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
